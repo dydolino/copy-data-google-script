@@ -1,0 +1,40 @@
+function pipedriveDataMigration() {
+  var activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet()
+  var manualSheet = activeSpreadsheet.getSheetByName('Manual')
+  var pipedriveDataCopy = activeSpreadsheet.getSheetByName('pipedrive_import')
+  var pipedriveDataOrigin = SpreadsheetApp.openById('1IeKG6DJokbU3wivKVp65FXsMyf7x3VdCGa8pYWMibLE').getSheetByName('Pipedrive imports - WIP')
+  var infoSheet = SpreadsheetApp.openById('1IeKG6DJokbU3wivKVp65FXsMyf7x3VdCGa8pYWMibLE').getSheetByName('Info')
+
+  var lastColumnPipedrive = pipedriveDataOrigin.getLastColumn()
+  var lastRowPipedrive = pipedriveDataOrigin.getLastRow()
+
+  Logger.log("Number of columns in orginal file: "+lastColumnPipedrive)
+  Logger.log("Number of rows in orginal file: "+lastRowPipedrive)
+
+  Logger.log("Rozpoczęto import Pipedrive")
+  pipedriveDataCopy.getRange(1,1,lastRowPipedrive,lastColumnPipedrive).setValues(pipedriveDataOrigin.getRange(1,1,lastRowPipedrive,lastColumnPipedrive).getValues())
+  Logger.log("Zakończono import Pipedrive")
+
+  var lastColumnPipedriveCopy = pipedriveDataCopy.getLastColumn()
+  var lastRowPipedriveCopy = pipedriveDataCopy.getLastRow()
+
+  Logger.log("Number of columns in copy file: "+lastColumnPipedriveCopy)
+  Logger.log("Number of rows in copy file: "+lastRowPipedriveCopy)
+
+  if(lastColumnPipedrive==lastColumnPipedriveCopy && lastRowPipedrive==lastRowPipedriveCopy){
+
+    manualSheet.getRange(2,3).setValue(new Date())
+    infoSheet.getRange(1,2).setValue(new Date())
+    activeSpreadsheet.toast("Zakończono import Pipedrive")
+
+  }
+
+  else{
+    MailApp.sendEmail('olek.dytko@gmail.com','Pipedrive Import','Wywalił się plik z Pipedrive',{
+      name:'Pipedrive Import',
+    });
+
+    activeSpreadsheet.toast("Pipedrive didn't import in full size")
+  }
+  
+}
