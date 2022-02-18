@@ -1,0 +1,44 @@
+function rawDataMigration() {
+
+  var activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet()
+  var manualSheet = activeSpreadsheet.getSheetByName('Manual')
+  var rawDataCopy = activeSpreadsheet.getSheetByName('raw_data')
+  var rawDataOrigin = SpreadsheetApp.openById('1xfbCX7__t81CMgrYwwwwRcomIvwy9rS7bzFgHx9jR1w').getSheetByName('raw_data')
+  var definitionsSheet = SpreadsheetApp.openById('1xfbCX7__t81CMgrYwwwwRcomIvwy9rS7bzFgHx9jR1w').getSheetByName('Definitions')
+
+  var lastColumnOrigin = rawDataOrigin.getMaxColumns()
+  var lastRowOrigin = rawDataOrigin.getLastRow()
+  Logger.log("Number of Columns "+lastColumnOrigin)
+  Logger.log("Number of rows "+lastRowOrigin)
+
+
+rawDataCopy.clear()
+Logger.log("Raw_data cleared")
+
+
+  Logger.log("Rozpoczęto import raw_data")
+  rawDataCopy.getRange(1,1,lastRowOrigin,lastColumnOrigin).setValues(rawDataOrigin.getRange(1,1,lastRowOrigin,lastColumnOrigin).getValues())
+  Logger.log("Zakończono import raw_data")
+
+  var lastColumnCopy = rawDataCopy.getMaxColumns()
+  var lastRowCopy = rawDataCopy.getLastRow()
+  Logger.log("Number of Columns in Copy "+lastColumnCopy)
+  Logger.log("Number of rows in Copy "+lastRowCopy)
+
+  if(lastColumnOrigin==lastColumnCopy && lastRowOrigin==lastRowCopy){
+
+  manualSheet.getRange(1,3).setValue(new Date())
+  definitionsSheet.getRange(13,2).setValue(new Date())
+  activeSpreadsheet.toast("Zakończono import raw_data")
+
+  }
+
+  else{
+    MailApp.sendEmail('olek.dytko@gmail.com','RawData Import','Wywalił się plik z raw_data',{
+      name:'RawData Import',
+    });
+
+    activeSpreadsheet.toast("RawData didn't import in full size")
+  }
+
+}
